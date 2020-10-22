@@ -5,6 +5,7 @@ Scripts automate the installation and use of Wireguard on AWS with Amazon Linux 
 
 ### Installation
 ```
+yum -y install git
 git clone https://github.com/pprometey/wireguard_aws.git wireguard_aws
 cd wireguard_aws
 sudo ./initial.sh

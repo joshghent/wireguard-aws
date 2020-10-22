@@ -1,5 +1,5 @@
 # Install and use AWS-based Wireguard
-Scripts automate the installation and use of Wireguard on AWS with Ubuntu Server 18.04
+Scripts automate the installation and use of Wireguard on AWS with Amazon Linux 2
 
 ## How use
 
@@ -34,3 +34,4 @@ sudo ./remove.sh
 ## Contributors  (alphabetically)
 - [Alexey Chernyavskiy](https://github.com/alexey-chernyavskiy)
 - [Max Kovgan](https://github.com/mvk)
+- [Josh Ghent](https://github.com/joshghent)

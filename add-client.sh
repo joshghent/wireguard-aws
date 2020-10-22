@@ -1,8 +1,13 @@
 #!/bin/bash
 
+if [[ $(id -u) -ne 0 ]];
+        then echo "Please re-run this script as root";
+        exit 1;
+fi
+
 # We read from the input parameter the name of the client
 if [ -z "$1" ]
-  then 
+  then
     read -p "Enter VPN user name: " USERNAME
     if [ -z $USERNAME ]
       then
@@ -20,7 +25,7 @@ read VPN_SUBNET < ./vpn_subnet.var
 PRESHARED_KEY="_preshared.key"
 PRIV_KEY="_private.key"
 PUB_KEY="_public.key"
-ALLOWED_IP="0.0.0.0/0"
+ALLOWED_IP="0.0.0.0/0, ::/0"
 
 # Go to the wireguard directory and create a directory structure in which we will store client configuration files
 mkdir -p ./clients
@@ -46,7 +51,7 @@ echo $OCTET_IP > /etc/wireguard/last_used_ip.var
 
 CLIENT_IP="$VPN_SUBNET$OCTET_IP/32"
 
-# Create a blank configuration file client 
+# Create a blank configuration file client
 cat > /etc/wireguard/clients/$USERNAME/$USERNAME.conf << EOF
 [Interface]
 PrivateKey = $CLIENT_PRIVKEY

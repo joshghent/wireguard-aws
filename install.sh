@@ -1,15 +1,19 @@
 #!/bin/bash
 
-apt install software-properties-common -y
-add-apt-repository ppa:wireguard/wireguard -y
-apt update
-apt install wireguard-dkms wireguard-tools qrencode -y
+if [[ $(id -u) -ne 0 ]];
+        then echo "Please re-run this script as root";
+        exit 1;
+fi
 
+sudo amazon-linux-extras install epel
+yum -y install wireguard-dkms wireguard-tools qrencode iptables-service
+yum reinstall kernel
 
 NET_FORWARD="net.ipv4.ip_forward=1"
 sysctl -w  ${NET_FORWARD}
 sed -i "s:#${NET_FORWARD}:${NET_FORWARD}:" /etc/sysctl.conf
 
+mkdir -p /etc/wireguard
 cd /etc/wireguard
 
 umask 077
@@ -29,8 +33,8 @@ fi
 echo $ENDPOINT > ./endpoint.var
 
 if [ -z "$1" ]
-  then 
-    read -p "Enter the server address in the VPN subnet (CIDR format), [ENTER] set to default: 10.50.0.1: " SERVER_IP
+  then
+    read -p "Enter the server address in the VPN subnet (CIDR format). Please note this should be different from the internal IP Address, [ENTER] set to default: 10.50.0.1: " SERVER_IP
     if [ -z $SERVER_IP ]
       then SERVER_IP="10.50.0.1"
     fi
@@ -70,4 +74,9 @@ done
 
 cp -f ./wg0.conf.def ./wg0.conf
 
-systemctl enable wg-quick@wg0
+sysctl net.ipv4.conf.all.forwarding=1 | tee -a /etc/sysctl.d/forwarding.conf
+
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables-save | tee /etc/sysconfig/iptables
+systemctl enable iptables
+systemctl enable wg-quick@wg0.service
